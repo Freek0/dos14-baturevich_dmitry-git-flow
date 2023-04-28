@@ -55,7 +55,8 @@ def credit (id):
             accounts[id]["credit_status"] = "on"
             accounts[id]["total_mounth"] = 12 * credit_dict[id]["term"]
             accounts[id]["current_mounth"] = 12 * credit_dict[id]["term"]
-            accounts[id]["monthly_write_off"] = (credit_dict[id]["sum"] * ((1 + (credit_dict[id]["percent"]/10))**credit_dict[id]["term"])) / (12 * credit_dict[id]["term"])
+            hard_procent = credit_dict[id]["sum"] * ((1 + (credit_dict[id]["percent"]/100))**credit_dict[id]["term"])
+            accounts[id]["monthly_write_off"] = hard_procent / (12 * credit_dict[id]["term"])
 
         else:
             accounts[id]["credit_status"] = "none"
@@ -82,7 +83,8 @@ def deposit (id):
             accounts[id]["deposit_status"] = "on"
             accounts[id]["total_deposit_mounth"] = 12 * deposit_dict[id]["term"]
             accounts[id]["current_deposit_mounth"] = 12 * deposit_dict[id]["term"]
-            accounts[id]["monthly_write_on"] = (deposit_dict[id]["sum"] * ((1 + (deposit_dict[id]["percent"]/10))**deposit_dict[id]["term"])) / (12 * deposit_dict[id]["term"])
+            hard_procent = deposit_dict[id]["sum"] * ((1 + (deposit_dict[id]["percent"]/100))**deposit_dict[id]["term"])
+            accounts[id]["monthly_write_on"] = (hard_procent) / (12 * deposit_dict[id]["term"])
 
         else:
             accounts[id]["deposit_status"] = "none"
@@ -94,18 +96,19 @@ def deposit (id):
             accounts[id]["amount"] = accounts[id]["amount"] + accounts[id]["monthly_write_on"]
             accounts[0]["amount"] = accounts[0]["amount"] - accounts[id]["monthly_write_on"]
             accounts[id]["current_deposit_mounth"] = accounts[id]["current_deposit_mounth"] - 1
-# print (accounts)
 # print (accounts.keys())
 ##################################################
 
 # Запуск времени + запись в файл
 ##################################################
 while True:
+    # print (accounts)
     for id in accounts.keys():
         if id == 0:
             continue
         credit(id)
         deposit(id)
+
     # открываем файл для записи
     with open('account.csv', 'w', newline='') as csvfile:
     
