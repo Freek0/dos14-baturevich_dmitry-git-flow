@@ -1,68 +1,129 @@
-import math
+import yaml
+import json
+import csv
+import time
 
-# Входные данные
-sum_arr = [
-    "1_1000",
-    "2_30000",
-    "3_100000",
-    "8_100",
-    "5_11111",
-    "9_14124124124",
-    "6_444",
-    "4_123456",
-    "7_100000000000",
-    "10_81214",
-]
-rate_arr = [
-    "1_10",
-    "2_11",
-    "3_8",
-    "4_13",
-    "5_11",
-    "6_6",
-    "7_9",
-    "8_11",
-    "9_13",
-    "10_12",
-]
-term_arr = ["1_1", "2_2", "3_2", "4_6", "5_8", "6_20", "7_9", "8_11", "9_13", "10_12"]
+##################################################
 
-# Сортируем массивы по id
-sum_arr = sorted(sum_arr, key=lambda x: int(x.split("_")[0]))
-rate_arr = sorted(rate_arr, key=lambda x: int(x.split("_")[0]))
-term_arr = sorted(term_arr, key=lambda x: int(x.split("_")[0]))
+# Открытие файла credit.json и чтение его содержимого
+##################################################
+with open("credit.json") as f:
+    credit_data = json.load(f)
+# Вложенный словарь кредитов с ключами id
+credit_dict = {}
+for credit in credit_data:
+    credit_dict[credit['id']] = {
+        'percent': credit['percent'],
+        'sum': credit['sum'],
+        'term': credit['term']
+    }
+# print (credit_dict)
+##################################################
 
+# Открытие файла deposit.yaml и чтение его содержимого
+##################################################
+with open("deposit.yaml") as f:
+    deposit_data = yaml.safe_load(f)
+# Создание списка словарей с атрибутами депозитов
+deposit_dict = {}
+for deposit in deposit_data:
+    deposit_dict[deposit['id']] = {
+        'percent': deposit['percent'],
+        'sum': deposit['sum'],
+        'term': deposit['term']
+    }
+##################################################
 
-# Функция для расчета итоговой суммы по каждой строке
-def calculate_end_sum(start_sum, rate, term):
-    r = rate / 100
-    n = term
-    return start_sum * (1 + r) ** n
+# Открытие файла account.csv и чтение его содержимого
+##################################################
+with open('account.csv', newline='') as f:
+    reader = csv.reader(f)
+    next(reader)  # Пропуск заголовка
+    account_data = list(reader)
+# Создание вложенного словаря с ключами id
+accounts = {}
+for row in account_data:
+    accounts[int(row[0])] = {'amount': int(row[1])}
+##################################################
+# Функция кредита
+##################################################
+def credit (id):
+    if "credit_status" not in accounts[id]:
+        if credit_dict[id]["sum"] > 0:
+            accounts[id]["amount"] = accounts[id]["amount"] + credit_dict[id]["sum"]
+            accounts[0]["amount"] = accounts[0]["amount"] - credit_dict[id]["sum"]
+            accounts[id]["credit_status"] = "on"
+            accounts[id]["total_mounth"] = 12 * credit_dict[id]["term"]
+            accounts[id]["current_mounth"] = 12 * credit_dict[id]["term"]
+            hard_procent = credit_dict[id]["sum"] * ((1 + (credit_dict[id]["percent"]/100))**credit_dict[id]["term"])
+            accounts[id]["monthly_write_off"] = hard_procent / (12 * credit_dict[id]["term"])
 
+        else:
+            accounts[id]["credit_status"] = "none"
+    
+    if accounts[id]["credit_status"] == "on":
+        if accounts[id]["current_mounth"] == 0:
+            accounts[id]["credit_status"] = "off"
+        else:
+            accounts[id]["amount"] = accounts[id]["amount"] - accounts[id]["monthly_write_off"]
+            accounts[0]["amount"] = accounts[0]["amount"] + accounts[id]["monthly_write_off"]
+            accounts[id]["current_mounth"] = accounts[id]["current_mounth"] - 1
 
-# Создаем список словарей с данными по каждой строке
-result_arr = []
-for i in range(len(sum_arr)):
-    id, start_sum = sum_arr[i].split("_")
-    id, rate = rate_arr[i].split("_")
-    id, term = term_arr[i].split("_")
-    id = int(id)
-    start_sum = int(start_sum)
-    rate = float(rate)
-    term = int(term)
-    end_sum = calculate_end_sum(start_sum, rate, term)
-    result_arr.append(
-        {
-            "id": id,
-            "start_sum": start_sum,
-            "rate": rate,
-            "term": term,
-            "end_sum": math.ceil(end_sum),
-        }
-    )
+    if accounts[id]["amount"] < 0:
+        print(f"Дорогой клиент, {id}, погасите ваш кредит. Сумма задолжености {accounts[id]['amount']}")
+##################################################
 
-# Результат
-for item in result_arr:
-    print(
-        f"id: {item['id']}\nstart_sum: {item['start_sum']}\nrate: {item['rate']}\nterm: {item['term']}\nend_sum: {item['end_sum']}\n"
-    )
+# Функция депозита
+##################################################
+def deposit (id):
+    if "deposit_status" not in accounts[id]:
+        if deposit_dict[id]["sum"] > 0:
+            accounts[id]["amount"] = accounts[id]["amount"] - deposit_dict[id]["sum"]
+            accounts[0]["amount"] = accounts[0]["amount"] + deposit_dict[id]["sum"]
+            accounts[id]["deposit_status"] = "on"
+            accounts[id]["total_deposit_mounth"] = 12 * deposit_dict[id]["term"]
+            accounts[id]["current_deposit_mounth"] = 12 * deposit_dict[id]["term"]
+            hard_procent = deposit_dict[id]["sum"] * ((1 + (deposit_dict[id]["percent"]/100))**deposit_dict[id]["term"])
+            accounts[id]["monthly_write_on"] = (hard_procent) / (12 * deposit_dict[id]["term"])
+
+        else:
+            accounts[id]["deposit_status"] = "none"
+    
+    if accounts[id]["deposit_status"] == "on":
+        if accounts[id]["current_deposit_mounth"] == 0:
+            accounts[id]["deposit_status"] = "off"
+        else:
+            accounts[id]["amount"] = accounts[id]["amount"] + accounts[id]["monthly_write_on"]
+            accounts[0]["amount"] = accounts[0]["amount"] - accounts[id]["monthly_write_on"]
+            accounts[id]["current_deposit_mounth"] = accounts[id]["current_deposit_mounth"] - 1
+# print (accounts.keys())
+##################################################
+
+# Запуск времени + запись в файл
+##################################################
+while True:
+    # print (accounts)
+    for id in accounts.keys():
+        if id == 0:
+            continue
+        credit(id)
+        deposit(id)
+
+    # открываем файл для записи
+    with open('account.csv', 'w', newline='') as csvfile:
+    
+        # определяем названия столбцов
+        fieldnames = ['id', 'amount']
+        
+        # создаем writer объект
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        # записываем хедер
+        writer.writeheader()
+        
+        # записываем значения из словаря
+        for id, account in accounts.items():
+            writer.writerow({'id': id, 'amount': account['amount']})
+    print("Месяц")
+    time.sleep(4)
+##################################################

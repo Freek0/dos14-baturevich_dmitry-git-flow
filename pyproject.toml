@@ -4,10 +4,11 @@ version = "0.0.1"
 description = ""
 authors = ["Freeko"]
 readme = "README.md"
-packages = [{include = "hw_py_project"}]
+
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pyyaml = "^6.0"
 
 [tool.poetry.group.dev]
 optional = true
