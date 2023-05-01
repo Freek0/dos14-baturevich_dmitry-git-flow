@@ -1,129 +1,133 @@
-import yaml
-import json
 import csv
+import json
+from abc import ABC, abstractmethod
 import time
 
-##################################################
-
-# Открытие файла credit.json и чтение его содержимого
-##################################################
-with open("credit.json") as f:
-    credit_data = json.load(f)
-# Вложенный словарь кредитов с ключами id
-credit_dict = {}
-for credit in credit_data:
-    credit_dict[credit['id']] = {
-        'percent': credit['percent'],
-        'sum': credit['sum'],
-        'term': credit['term']
-    }
-# print (credit_dict)
-##################################################
-
-# Открытие файла deposit.yaml и чтение его содержимого
-##################################################
-with open("deposit.yaml") as f:
-    deposit_data = yaml.safe_load(f)
-# Создание списка словарей с атрибутами депозитов
-deposit_dict = {}
-for deposit in deposit_data:
-    deposit_dict[deposit['id']] = {
-        'percent': deposit['percent'],
-        'sum': deposit['sum'],
-        'term': deposit['term']
-    }
-##################################################
-
-# Открытие файла account.csv и чтение его содержимого
-##################################################
-with open('account.csv', newline='') as f:
-    reader = csv.reader(f)
-    next(reader)  # Пропуск заголовка
-    account_data = list(reader)
-# Создание вложенного словаря с ключами id
-accounts = {}
-for row in account_data:
-    accounts[int(row[0])] = {'amount': int(row[1])}
-##################################################
-# Функция кредита
-##################################################
-def credit (id):
-    if "credit_status" not in accounts[id]:
-        if credit_dict[id]["sum"] > 0:
-            accounts[id]["amount"] = accounts[id]["amount"] + credit_dict[id]["sum"]
-            accounts[0]["amount"] = accounts[0]["amount"] - credit_dict[id]["sum"]
-            accounts[id]["credit_status"] = "on"
-            accounts[id]["total_mounth"] = 12 * credit_dict[id]["term"]
-            accounts[id]["current_mounth"] = 12 * credit_dict[id]["term"]
-            hard_procent = credit_dict[id]["sum"] * ((1 + (credit_dict[id]["percent"]/100))**credit_dict[id]["term"])
-            accounts[id]["monthly_write_off"] = hard_procent / (12 * credit_dict[id]["term"])
-
-        else:
-            accounts[id]["credit_status"] = "none"
+class BankProduct(ABC):
+    def __init__(self, entity_id, percent, term, sum):
+        self._entity_id = entity_id
+        self._percent = percent
+        self._term = term
+        self._sum = sum
     
-    if accounts[id]["credit_status"] == "on":
-        if accounts[id]["current_mounth"] == 0:
-            accounts[id]["credit_status"] = "off"
-        else:
-            accounts[id]["amount"] = accounts[id]["amount"] - accounts[id]["monthly_write_off"]
-            accounts[0]["amount"] = accounts[0]["amount"] + accounts[id]["monthly_write_off"]
-            accounts[id]["current_mounth"] = accounts[id]["current_mounth"] - 1
-
-    if accounts[id]["amount"] < 0:
-        print(f"Дорогой клиент, {id}, погасите ваш кредит. Сумма задолжености {accounts[id]['amount']}")
-##################################################
-
-# Функция депозита
-##################################################
-def deposit (id):
-    if "deposit_status" not in accounts[id]:
-        if deposit_dict[id]["sum"] > 0:
-            accounts[id]["amount"] = accounts[id]["amount"] - deposit_dict[id]["sum"]
-            accounts[0]["amount"] = accounts[0]["amount"] + deposit_dict[id]["sum"]
-            accounts[id]["deposit_status"] = "on"
-            accounts[id]["total_deposit_mounth"] = 12 * deposit_dict[id]["term"]
-            accounts[id]["current_deposit_mounth"] = 12 * deposit_dict[id]["term"]
-            hard_procent = deposit_dict[id]["sum"] * ((1 + (deposit_dict[id]["percent"]/100))**deposit_dict[id]["term"])
-            accounts[id]["monthly_write_on"] = (hard_procent) / (12 * deposit_dict[id]["term"])
-
-        else:
-            accounts[id]["deposit_status"] = "none"
+    @property
+    def entity_id(self):
+        return self._entity_id
     
-    if accounts[id]["deposit_status"] == "on":
-        if accounts[id]["current_deposit_mounth"] == 0:
-            accounts[id]["deposit_status"] = "off"
-        else:
-            accounts[id]["amount"] = accounts[id]["amount"] + accounts[id]["monthly_write_on"]
-            accounts[0]["amount"] = accounts[0]["amount"] - accounts[id]["monthly_write_on"]
-            accounts[id]["current_deposit_mounth"] = accounts[id]["current_deposit_mounth"] - 1
-# print (accounts.keys())
-##################################################
+    @property
+    def percent(self):
+        return self._percent
+    
+    @property
+    def term(self):
+        return self._term
+    
+    @property
+    def sum(self):
+        return self._sum
+    
+    @property
+    def end_sum(self):
+        return self._sum * (1 + self._percent/100)**self._term
+    
+    @abstractmethod
+    def process(self):
+        pass
 
-# Запуск времени + запись в файл
-##################################################
+
+class Credit(BankProduct):
+    def __init__(self, entity_id, percent, term, sum):
+        super().__init__(entity_id, percent, term, sum)
+        self.__periods = term * 12
+        self.__closed = False
+        self.__monthly_fee = self.end_sum / (term * 12)
+    
+    @property
+    def periods(self):
+        return self.__periods
+    
+    @property
+    def closed(self):
+        return self.__closed
+    
+    @property
+    def monthly_fee(self):
+        return self.__monthly_fee
+    
+    def process(self, user_id):
+        with open('transactions.csv', 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([user_id, self.monthly_fee, 'substract'])
+            writer.writerow([0, self.monthly_fee, 'add'])
+        self.__periods -= 1
+        if self.__periods == 0:
+            self.__closed = True
+
+
+class Deposit(BankProduct):
+    def __init__(self, entity_id, percent, term, sum):
+        super().__init__(entity_id, percent, term, sum)
+        self.__periods = term * 12
+        self.__closed = False
+        self.__monthly_fee = self.end_sum / (term * 12)
+    
+    @property
+    def periods(self):
+        return self.__periods
+    
+    @property
+    def monthly_fee(self):
+        return self.__monthly_fee
+    
+    @property
+    def closed(self):
+        return self.__closed
+    
+    def process(self, user_id):
+        with open('transactions.csv', 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([user_id, self.monthly_fee, 'add'])
+            writer.writerow([0, self.monthly_fee, 'substract'])
+        self.__periods -= 1
+        if self.__periods == 0:
+            self.__closed = True 
+
+    
+# Открываем файл с данными
+with open('credits_deposits.json', 'r') as f:
+    data = json.load(f)
+
+# Создаем список объектов Credit и Deposit
+products_bank = []
+for credit_data in data['credit']:
+    credit = Credit(
+        entity_id=credit_data['entity_id'],
+        percent=credit_data['percent'],
+        term=credit_data['term'],
+        sum=credit_data['sum']
+    )
+    products_bank.append(credit)
+for deposit_data in data['deposit']:
+    deposit = Deposit(
+        entity_id=deposit_data['entity_id'],
+        percent=deposit_data['percent'],
+        term=deposit_data['term'],
+        sum=deposit_data['sum']
+    )
+    products_bank.append(deposit)
+
+# Основной цикл
 while True:
-    # print (accounts)
-    for id in accounts.keys():
-        if id == 0:
-            continue
-        credit(id)
-        deposit(id)
+    for product in products_bank:
+        product.process(user_id=product.entity_id)
+        if product.closed:
+            products_bank.remove(product)
 
-    # открываем файл для записи
-    with open('account.csv', 'w', newline='') as csvfile:
-    
-        # определяем названия столбцов
-        fieldnames = ['id', 'amount']
-        
-        # создаем writer объект
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
-        # записываем хедер
-        writer.writeheader()
-        
-        # записываем значения из словаря
-        for id, account in accounts.items():
-            writer.writerow({'id': id, 'amount': account['amount']})
-    print("Месяц")
-    time.sleep(4)
-##################################################
+    # Обновляем данные в файле credits_deposits.json
+    with open('credits_deposits.json', 'w') as f:
+        json.dump({
+            'credit': [p.__dict__ for p in products_bank if isinstance(p, Credit)],
+            'deposit': [p.__dict__ for p in products_bank if isinstance(p, Deposit)]
+        }, f)
+
+    time.sleep(1)  
