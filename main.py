@@ -126,8 +126,8 @@ while True:
     # Обновляем данные в файле credits_deposits.json
     with open('credits_deposits.json', 'w') as f:
         json.dump({
-            'credit': [p.__dict__ for p in products_bank if isinstance(p, Credit)],
-            'deposit': [p.__dict__ for p in products_bank if isinstance(p, Deposit)]
+            'credit': [{'entity_id': p.entity_id, 'percent': p.percent, 'sum': p.sum, 'term': p.term} for p in products_bank if isinstance(p, Credit)],
+            'deposit': [{'entity_id': p.entity_id, 'percent': p.percent, 'sum': p.sum, 'term': p.term} for p in products_bank if isinstance(p, Deposit)]
         }, f)
 
     time.sleep(1)  
