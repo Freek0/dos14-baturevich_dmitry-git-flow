@@ -134,41 +134,41 @@ class Deposit(BankProduct):
             if self.__periods == 0:
                 self.__closed = True
 
+with open("credits_deposits.yaml", "r") as f:
+
+    data = yaml.load(f, Loader=yaml.FullLoader)
+
+# Создаем список объектов Credit и Deposit
+products_bank = []
+for credit_data in data['credit']:
+    credit = Credit(
+        client_id=credit_data['client_id'],
+        percent=credit_data['percent'],
+        term=credit_data['term'],
+        sum=credit_data['sum'],
+        periods=credit_data['periods']
+    )
+    products_bank.append(credit)
+for deposit_data in data['deposit']:
+    deposit = Deposit(
+        client_id=deposit_data['client_id'],
+        percent=deposit_data['percent'],
+        term=deposit_data['term'],
+        sum=deposit_data['sum'],
+        periods=deposit_data['periods']
+
+    )
+    products_bank.append(deposit)
+
 def process_credits_deposits():
 
     # Основной цикл
     while True:
-        with open("credits_deposits.yaml", "r") as f:
-
-            data = yaml.load(f, Loader=yaml.FullLoader)
-
-        # Создаем список объектов Credit и Deposit
-        products_bank = []
-        for credit_data in data['credit']:
-            credit = Credit(
-                client_id=credit_data['client_id'],
-                percent=credit_data['percent'],
-                term=credit_data['term'],
-                sum=credit_data['sum'],
-                periods=credit_data['periods']
-            )
-            products_bank.append(credit)
-        for deposit_data in data['deposit']:
-            deposit = Deposit(
-                client_id=deposit_data['client_id'],
-                percent=deposit_data['percent'],
-                term=deposit_data['term'],
-                sum=deposit_data['sum'],
-                periods=deposit_data['periods']
-
-            )
-            products_bank.append(deposit)
+        
         for product in products_bank:
             product.process()
             if product.closed:
-                products_bank.remove(product)
-
-
+                products_bank.remove(product)        
         with open("credits_deposits.yaml", "w") as f:
             yaml.dump({
                 'credit': [{
@@ -256,7 +256,7 @@ def get_all_credits():
     return jsonify(credits)
 
 # Создаем новый кредит с проверкой на существование до этого и пишем в файл
-@app.route("/api/v1/credits", methods=["POST"])
+@app.route("/api/v1/credits", methods=["PUT"])
 def create_credit():
 
     client_request = request.json
@@ -282,26 +282,16 @@ def create_credit():
                 400,
             )
 
-    # Добавляем новый кредит в список credits
-    new_credit = {
-        "client_id": client_id,
-        "percent": percent,
-        "sum": sum,
-        "term": term,
-        "periods": periods,
-    }
-    credits.append(new_credit)
-    file_data["credit"] = credits
-    with open("credits_deposits.yaml", "w") as f:
-        yaml.dump(file_data, f)
-
+    new_credit = Credit(client_id, percent, term, sum, periods)  
+    products_bank.append(new_credit)
+  
     return (
         jsonify({"status": "ok", "message": f"Credit added for client {client_id}"}),
         201,
     )
 
 # Создаем новый депозит с проверкой на существование до этого и пишем в файл
-@app.route("/api/v1/deposits", methods=["POST"])
+@app.route("/api/v1/deposits", methods=["PUT"])
 def create_deposit():
 
     client_request = request.json
@@ -327,18 +317,8 @@ def create_deposit():
                 400,
             )
 
-    
-    new_deposit = {
-        "client_id": client_id,
-        "percent": percent,
-        "sum": sum,
-        "term": term,
-        "periods": periods,
-    }
-    deposits.append(new_deposit)
-    file_data["deposit"] = deposits
-    with open("credits_deposits.yaml", "w") as f:
-        yaml.dump(file_data, f)
+    new_deposit = Deposit(client_id, percent, term, sum, periods)  
+    products_bank.append(new_deposit)
 
     return (
         jsonify({"status": "ok", "message": f"Deposit added for client {client_id}"}),
