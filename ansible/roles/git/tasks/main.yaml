@@ -12,5 +12,13 @@
 
     - name: Install Git package
       apt:
-        name: git=1:2.40.1-0ppa1~ubuntu22.04.1
+        name: "{{git_vers}}"
         state: present
+    
+    - name: Clone repository
+      git:
+        repo: "{{git_repo}}"
+        dest: "{{project_dir}}"
+        version: "{{git_branch}}"
+        force: yes
+      become_user: "{{git_user}}"

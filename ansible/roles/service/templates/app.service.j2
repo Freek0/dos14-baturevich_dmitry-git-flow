@@ -1,0 +1,11 @@
+[Unit]
+Description=My Flask App
+After=network.target
+
+[Service]
+User=bank
+WorkingDirectory=/home/bank/bank_app
+ExecStart=/bin/bash -c "source /home/bank/.pyenv/bin/activate && poetry run flask --app main run"
+
+[Install]
+WantedBy=multi-user.target

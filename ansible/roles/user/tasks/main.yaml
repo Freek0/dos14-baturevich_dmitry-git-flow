@@ -1,0 +1,7 @@
+- name: Add user bank with group bank
+  user:
+      name: bank
+      group: root
+      state: present
+      createhome: yes
+

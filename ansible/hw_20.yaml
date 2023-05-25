@@ -3,7 +3,9 @@
     become: true
 
     roles:
+      - role: user
       - role: git
       - role: pyenv
+      - role: service
 
     
