@@ -1,0 +1,9 @@
+  - name: Main
+    hosts: localhost
+    become: true
+
+    roles:
+      - role: git
+      - role: pyenv
+
+    

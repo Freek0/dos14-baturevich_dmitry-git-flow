@@ -1,0 +1,16 @@
+- name: Install Git
+  block:
+    - name: Add Git PPA repository
+      apt_repository:
+        repo: ppa:git-core/ppa
+        state: present
+        update_cache: yes
+
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install Git package
+      apt:
+        name: git=1:2.40.1-0ppa1~ubuntu22.04.1
+        state: present

@@ -1,0 +1,29 @@
+- name: Install Pythonh 3.11 
+  block:
+    - name: Install Python dependencies
+      apt:
+        name: {{item}}
+        state: present
+
+      loop: 
+        - python3-dev
+        - python3-pip
+        - python3-venv
+      update_cache: yes
+
+    - name: Install Python using PPA
+      apt_repository:
+        repo: ppa:deadsnakes/ppa
+        state: present
+        update_cache: yes
+
+    - name: Install Python 3.11.0 package
+      apt:
+        name: python3.11
+        state: present
+
+    - name: Install Poetry 
+      pip:
+        name: poetry
+        executable: pip3
+        state: present
