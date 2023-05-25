@@ -9,6 +9,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 pyyaml = "^6.0"
+flask = "^2.3.2"
+account = {git = "https://github.com/ggramal/dos14-gramovich-git-flow.git"}
 
 [tool.poetry.group.dev]
 optional = true
