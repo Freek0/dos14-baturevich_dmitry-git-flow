@@ -41,13 +41,13 @@
         name: poetry
         state: present
 
-    - name: Install python
+    - name: set global python
       shell: /home/{{app_user}}/.pyenv/bin/pyenv global 3.11.3
       args:
         executable: /bin/bash
       become_user: "{{app_user}}"
     
-    - name: Выполнение команды с переменными окружения
+    - name: Poetry Install
       shell: |
         export PYENV_ROOT="$HOME/.pyenv"
         export PATH="$PYENV_ROOT/bin:$PATH"

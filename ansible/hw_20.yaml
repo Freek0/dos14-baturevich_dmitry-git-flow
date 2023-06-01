@@ -11,6 +11,7 @@
         private: no
     roles:
       - role: user
+      - role: docker
       - role: git
       - role: pyenv
       - role: service
