@@ -1,0 +1,7 @@
+version: "0.0.1"
+services:
+  bank_app:
+    image: freeko/bank_app:HW_25
+    user: appuser
+    ports:
+      - 5000:5000

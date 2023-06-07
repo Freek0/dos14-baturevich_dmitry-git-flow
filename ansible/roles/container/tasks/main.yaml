@@ -1,0 +1,16 @@
+- name: Docker compose
+  block:
+  - name: Pull an image
+    community.docker.docker_image:
+      name: freeko/bank_app:HW_25
+      source: pull
+
+  - name: Create docker conatiner 
+    community.docker.docker_container:
+      name: bank_app
+      image: freeko/bank_app:HW_25
+      user: appuser
+      state: started
+      recreate: true
+      exposed_ports:
+        - 5000:5000
