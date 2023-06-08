@@ -1,0 +1,19 @@
+  - name: Main
+    hosts: all
+    become: true
+
+    vars_prompt:
+      - name: ansible_user
+        private: no
+      - name: app_user
+        private: no
+      - name: service_name
+        private: no
+    roles:
+      - role: user
+      - role: docker
+      - role: git
+      - role: pyenv
+      - role: service
+
+    

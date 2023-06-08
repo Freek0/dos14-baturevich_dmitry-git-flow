@@ -1,0 +1,46 @@
+- name: Install Git
+  block:
+    - name: Add Git PPA repository
+      apt_repository:
+        repo: ppa:git-core/ppa
+        state: present
+        update_cache: yes
+
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install Git package
+      apt:
+        name: "{{item}}"
+        state: present
+      loop: 
+        - "{{git_vers}}"
+    
+    - name: Edit sudoers
+      blockinfile:
+        path: "/etc/sudoers"
+        block: |
+          Defaults   env_keep+=SSH_AUTH_SOCK
+          {{app_user}} ALL=(ALL) NOPASSWD: ALL
+        state: present
+
+    - name: add git to known hosts
+      shell: |
+        mkdir {{env_dir}}/.ssh
+        ssh-keyscan -t rsa github.com > {{env_dir}}/.ssh/known_hosts
+      become_user: "{{app_user}}"
+    
+    - name: Git Clone
+      shell: |
+        chmod 777 $(dirname "$SSH_AUTH_SOCK")
+        chmod 777 "$SSH_AUTH_SOCK"
+        rm -rf {{project_dir}}
+        sudo -u {{app_user}} git clone {{git_repo}} {{project_dir}}
+      args:
+        executable: /bin/bash
+
+
+
+
+

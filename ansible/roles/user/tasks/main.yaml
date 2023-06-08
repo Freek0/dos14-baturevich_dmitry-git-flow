@@ -1,0 +1,7 @@
+- name: Add user "{{app_user}}"
+  user:
+      name: "{{app_user}}"
+      group: root
+      state: present
+
+
