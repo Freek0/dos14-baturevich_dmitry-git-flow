@@ -53,4 +53,4 @@ USER appuser
 EXPOSE 5000
 
 
-CMD [ "poetry", "run", "flask", "--app", "main", "run" ]
+CMD [ "poetry", "run", "flask", "--app", "main", "run", "--host", "0.0.0.0" ]
