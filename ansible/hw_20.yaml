@@ -1,19 +1,23 @@
   - name: Main
     hosts: all
     become: true
+    # collections:
+    # - community.docker.docker_compose
 
     vars_prompt:
       - name: ansible_user
         private: no
       - name: app_user
         private: no
-      - name: service_name
-        private: no
+    #   - name: service_name
+    #     private: no
     roles:
       - role: user
       - role: docker
       - role: git
-      - role: pyenv
-      - role: service
+      # - role: pyenv
+      # - role: service
+      - role: container
+
 
     
