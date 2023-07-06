@@ -1,0 +1,15 @@
+version: "0.0.1"
+services:
+  docker:
+    image: bank:HW_25
+    container_name: bank_app
+    build: /home/bank/bank_app
+    ports:
+      - 80:5000
+# version: "0.0.1"
+# services:
+#   bank_app:
+#     image: freeko/bank_app:HW_25
+#     user: bank
+#     ports:
+#       - 5000:5000

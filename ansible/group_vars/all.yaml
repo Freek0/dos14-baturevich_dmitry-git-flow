@@ -1,0 +1,5 @@
+project_dir: "/home/{{app_user}}/bank_app"
+env_dir: "/home/{{app_user}}"
+
+
+
