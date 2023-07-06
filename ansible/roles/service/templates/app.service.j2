@@ -1,0 +1,11 @@
+[Unit]
+Description=My Flask App
+After=network.target
+
+[Service]
+User=bank
+WorkingDirectory=/home/{{app_user}}/bank_app
+ExecStart=/bin/bash -c "source $(find /home/bank/.cache/pypoetry/virtualenvs/**/bin/activate) && poetry run flask --app main run"
+
+[Install]
+WantedBy=multi-user.target
