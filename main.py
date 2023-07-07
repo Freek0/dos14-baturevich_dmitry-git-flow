@@ -324,6 +324,12 @@ def create_deposit():
         jsonify({"status": "ok", "message": f"Deposit added for client {client_id}"}),
         201,
     )
+@app.route("/api/v1/bank/health_check", methods=["GET"])
+def health_ckeck():
+    return (
+        jsonify({"status": "ok", "message": f"Bank app is ALIVE!"}),
+        200,
+    )
 ####
 
 if __name__ == "__main__":

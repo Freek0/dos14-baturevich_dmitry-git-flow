@@ -1,11 +1,21 @@
 version: "0.0.1"
 services:
-  docker:
-    image: bank:HW_25
+  app:
+    image: freeko/bank_app:hw_26
     container_name: bank_app
-    build: /home/bank/bank_app
     ports:
-      - 80:5000
+      - "5000:5000"
+  
+
+  nginx: 
+    container_name: nginx
+    build: 
+      context: .
+      dockerfile: Dockerfile.nginx
+    depends_on:
+      - app
+    ports:
+      - "80:80"
 # version: "0.0.1"
 # services:
 #   bank_app:
