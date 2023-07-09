@@ -23,7 +23,7 @@ services:
   certbot:
     image: certbot/certbot
     command: 
-      - if [ ! -f "/etc/letsencrypt/live/bdi.bank.smodata.net/fullchain.pem" ]; then certonly --webroot --webroot-path=/var/www/certbot --email baturevichdmitry@gmail.com --agree-tos --no-eff-email --staging -d bdi.bank.smodata.net; fi 
+      - sh -c  "if [ ! -f "/etc/letsencrypt/live/bdi.bank.smodata.net/fullchain.pem" ]; then certonly --webroot --webroot-path=/var/www/certbot --email baturevichdmitry@gmail.com --agree-tos --no-eff-email --staging -d bdi.bank.smodata.net; fi"
     depends_on:
       - nginx
     volumes:
