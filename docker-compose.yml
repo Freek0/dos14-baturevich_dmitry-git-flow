@@ -16,10 +16,17 @@ services:
       - app
     ports:
       - "80:80"
-# version: "0.0.1"
-# services:
-#   bank_app:
-#     image: freeko/bank_app:HW_25
-#     user: bank
-#     ports:
-#       - 5000:5000
+      - "443:443"
+    volumes:
+    - ./certs:/etc/letsencrypt
+
+  certbot:
+    image: certbot/certbot
+    command: 
+      - certonly --webroot --webroot-path=/var/www/certbot --email baturevichdmitry@gmail.com --agree-tos --no-eff-email --staging -d bdi.bank.smodata.net
+    depends_on:
+      - nginx
+    volumes:
+      - ./certs:/etc/letsencrypt  
+    environment:
+      - NGINX_CONTAINER_NAME=nginx
