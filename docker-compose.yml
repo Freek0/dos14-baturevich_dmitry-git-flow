@@ -4,9 +4,8 @@ services:
     image: freeko/bank_app:hw_26
     container_name: bank_app
     ports:
-      - "5000:5000"
+      - "5000:5000"  
   
-
   nginx: 
     container_name: nginx
     build: 
@@ -17,16 +16,14 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    restart: always
     volumes:
-    - ./certs:/etc/letsencrypt
-
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+  
   certbot:
-    image: certbot/certbot
-    command: 
-      - sh -c  "if [ ! -f "/etc/letsencrypt/live/bdi.bank.smodata.net/fullchain.pem" ]; then certonly --webroot --webroot-path=/var/www/certbot --email baturevichdmitry@gmail.com --agree-tos --no-eff-email --staging -d bdi.bank.smodata.net; fi"
-    depends_on:
-      - nginx
+    image: certbot/certbot:latest
     volumes:
-      - ./certs:/etc/letsencrypt  
-    environment:
-      - NGINX_CONTAINER_NAME=nginx
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
