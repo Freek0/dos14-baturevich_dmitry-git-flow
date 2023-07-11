@@ -3,6 +3,9 @@ services:
   app:
     image: freeko/bank_app:hw_26
     container_name: bank_app
+    restart: unless-stopped
+    networks:
+      nginx_net:
     ports:
       - "5000:5000"  
   
@@ -13,17 +16,26 @@ services:
       dockerfile: Dockerfile.nginx
     depends_on:
       - app
+    restart: unless-stopped
+    networks:
+      nginx_net:
     ports:
       - "80:80"
       - "443:443"
-    restart: always
     volumes:
-      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./Dockerfile.nginx:/etc/nginx/conf.d/:ro
       - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
   
   certbot:
     image: certbot/certbot:latest
+    restart: unless-stopped
+    networks:
+      nginx_net:
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
+
+networks:
+  nginx_net:
+    name: nginx_net
