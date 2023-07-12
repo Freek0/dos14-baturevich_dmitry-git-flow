@@ -28,7 +28,10 @@ services:
       - "5000:5000"  
 
   certbot:
-    image: certbot/certbot:latest
+    container_name: certbot
+    build: 
+      context: .
+      dockerfile: Dockerfile.certbot
     restart: unless-stopped
     depends_on:
       - nginx
@@ -37,8 +40,7 @@ services:
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
+      
 networks:
   nginx_net:
     name: nginx_net
