@@ -1,14 +1,6 @@
 version: "0.0.1"
 services:
-  app:
-    image: freeko/bank_app:hw_26
-    container_name: bank_app
-    restart: unless-stopped
-    networks:
-      nginx_net:
-    ports:
-      - "5000:5000"  
-  
+
   nginx: 
     container_name: nginx
     build: 
@@ -18,20 +10,30 @@ services:
       - app
     restart: unless-stopped
     networks:
-      nginx_net:
+      - nginx_net
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./certbot/www:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/letsencrypt/:ro
-    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
-  
+    
+  app:
+    image: freeko/bank_app:hw_26
+    container_name: bank_app
+    restart: unless-stopped
+    networks:
+      - nginx_net
+    ports:
+      - "5000:5000"  
+
   certbot:
     image: certbot/certbot:latest
     restart: unless-stopped
+    depends_on:
+      - nginx
     networks:
-      nginx_net:
+      - nginx_net
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
