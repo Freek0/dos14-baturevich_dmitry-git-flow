@@ -13,6 +13,6 @@ if [ -d "$certs_dir" ]; then
     fi
 else
     echo "Сертификаты отсутствуют"
-    certbot certonly --webroot --webroot-path=/var/www/certbot --domain $domains --agree-tos --non-interactive --email baturevichdmitry@gmail.com --quiet
+    certbot certonly --webroot --webroot-path=/var/www/certbot -d $domains
 fi
 exec "$@"
