@@ -2,10 +2,10 @@ version: "0.0.1"
 services:
 
   nginx_certbot: 
-    container_name: nginx
+    container_name: nginx_certbot
     build: 
       context: .
-      dockerfile: Dockerfile.nginx_certbot
+      dockerfile: Dockerfile.nginxcertbot
     restart: unless-stopped
     networks:
       - nginx_net
@@ -29,12 +29,13 @@ services:
       - ./certbot/conf/:/etc/letsencrypt/:rw
   
   nginx_app: 
-    container_name: nginx
+    container_name: nginx_app
     build: 
       context: .
-      dockerfile: Dockerfile.nginx_app
+      dockerfile: Dockerfile.nginxapp
     depends_on:
-      - certbot
+      certbot:
+        condition: service_completed_successfully
     restart: unless-stopped
     networks:
       - nginx_net
@@ -51,7 +52,7 @@ services:
     networks:
       - nginx_net
     ports:
-      - "5000:5000" 
+      - "5000" 
       
 networks:
   nginx_net:

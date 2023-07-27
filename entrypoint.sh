@@ -13,6 +13,6 @@ if [ -d "$certs_dir" ]; then
     fi
 else
     echo "Сертификаты отсутствуют"
-    certbot certonly --webroot --webroot-path=/var/www/certbot -d $domains
+    certbot certonly --standalone --preferred-challenges http --http-01-port 80 --non-interactive --email baturevichdmitry@gmail.com --agree-tos --no-eff-email --staging -d $domains
 fi
 exec "$@"
