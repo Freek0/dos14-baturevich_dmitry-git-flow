@@ -34,8 +34,7 @@ services:
       context: .
       dockerfile: Dockerfile.nginxapp
     depends_on:
-      certbot:
-        condition: service_completed_successfully
+      - certbot
     restart: unless-stopped
     networks:
       - nginx_net
