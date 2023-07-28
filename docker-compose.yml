@@ -51,7 +51,7 @@ services:
     networks:
       - nginx_net
     ports:
-      - "5000" 
+      - "5000:5000" 
       
 networks:
   nginx_net:
