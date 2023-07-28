@@ -43,7 +43,7 @@ services:
     volumes:
       - ./certbot/www:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/letsencrypt/:ro
-
+      - ./logs/nginx:/var/log/nginx
   app:
     image: freeko/bank_app:hw_26
     container_name: bank_app
@@ -51,7 +51,7 @@ services:
     networks:
       - nginx_net
     ports:
-      - "5000:5000" 
+      - "5000" 
       
 networks:
   nginx_net:
