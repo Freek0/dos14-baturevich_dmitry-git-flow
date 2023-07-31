@@ -1,15 +1,58 @@
 version: "0.0.1"
 services:
-  docker:
-    image: bank:HW_25
-    container_name: bank_app
-    build: /home/bank/bank_app
+
+  nginx_certbot: 
+    container_name: nginx_certbot
+    build: 
+      context: .
+      dockerfile: Dockerfile.nginxcertbot
+    restart: unless-stopped
+    networks:
+      - nginx_net
     ports:
-      - 80:5000
-# version: "0.0.1"
-# services:
-#   bank_app:
-#     image: freeko/bank_app:HW_25
-#     user: bank
-#     ports:
-#       - 5000:5000
+      - "80:80"
+    volumes:
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro 
+
+  certbot:
+    container_name: certbot
+    build: 
+      context: .
+      dockerfile: Dockerfile.certbot
+    depends_on:
+      - nginx_certbot
+    networks:
+      - nginx_net
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+  
+  nginx_app: 
+    container_name: nginx_app
+    build: 
+      context: .
+      dockerfile: Dockerfile.nginxapp
+    depends_on:
+      - certbot
+    restart: unless-stopped
+    networks:
+      - nginx_net
+    ports:
+      - "443:443"
+    volumes:
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
+      - ./logs/nginx:/var/log/nginx
+  app:
+    image: freeko/bank_app:hw_26
+    container_name: bank_app
+    restart: unless-stopped
+    networks:
+      - nginx_net
+    ports:
+      - "5000:5000" 
+      
+networks:
+  nginx_net:
+    name: nginx_net
