@@ -1,48 +1,16 @@
 version: "0.0.1"
 services:
-
-  nginx_certbot: 
-    container_name: nginx_certbot
+  nginx_app: 
+    container_name: nginx_app
     build: 
       context: .
-      dockerfile: Dockerfile.nginxcertbot
+      dockerfile: Dockerfile.nginxapp
     restart: unless-stopped
     networks:
       - nginx_net
     ports:
       - "80:80"
     volumes:
-      - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/letsencrypt/:ro 
-
-  certbot:
-    container_name: certbot
-    build: 
-      context: .
-      dockerfile: Dockerfile.certbot
-    depends_on:
-      - nginx_certbot
-    networks:
-      - nginx_net
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
-  
-  nginx_app: 
-    container_name: nginx_app
-    build: 
-      context: .
-      dockerfile: Dockerfile.nginxapp
-    depends_on:
-      - certbot
-    restart: unless-stopped
-    networks:
-      - nginx_net
-    ports:
-      - "443:443"
-    volumes:
-      - ./certbot/www:/var/www/certbot/:ro
-      - ./certbot/conf/:/etc/letsencrypt/:ro
       - ./logs/nginx:/var/log/nginx
   app:
     image: freeko/bank_app:hw_26
