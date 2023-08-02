@@ -14,7 +14,7 @@
     roles:
       - role: user
       - role: docker
-      - role: git
+      # - role: git
       # - role: pyenv
       # - role: service
       - role: container
