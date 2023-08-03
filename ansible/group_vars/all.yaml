@@ -1,4 +1,4 @@
-project_dir: "/home/{{app_user}}/bank_app"
+project_dir: "/tmp/bank"
 env_dir: "/home/{{app_user}}"
 ansible_user: "ubuntu"
 app_user: "bank"
