@@ -300,7 +300,7 @@ def start_f():
     while True:
         time.sleep(1)  # МЕСЯЦ = 1 секунда
         for (
-                clients
+            clients
         ) in bank_clients:  # Каждый месяц вызываем у этих объектов метод process
             clients.process()
             if clients.closed():  # Если кредит, депозит закрыт
