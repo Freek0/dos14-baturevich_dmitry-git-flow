@@ -24,7 +24,7 @@ pipeline {
       stage('Build') {
       when {
         anyOf {
-          branch pattern: "feaute-ci"
+          branch pattern: "master"
         }
       }
       steps {
