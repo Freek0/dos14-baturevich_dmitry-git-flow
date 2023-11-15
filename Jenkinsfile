@@ -30,7 +30,7 @@ pipeline {
       steps {
         script {
           def image = docker.build "freeko/bank_app:${env.GIT_COMMIT}"
-          docker.withRegistry('','bank_app') {
+          docker.withRegistry('','freeko/bank_app') {
             image.push()
           }
         }
