@@ -10,4 +10,5 @@ USER app
 
 RUN poetry install
 
+
 ENTRYPOINT ["poetry", "run", "python", "main.py"]
