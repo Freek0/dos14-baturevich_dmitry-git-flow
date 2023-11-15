@@ -12,6 +12,7 @@ pipeline {
           anyOf {
             branch pattern: "feature*"
             branch pattern: "fix*"
+            branch pattern: "feaute-ci"
           }
         }
         steps {
