@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-{{ .Release.Namespace }}-{{ include "bank.name" . }}
+  namespace: {{ .Release.Namespace }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.hosts.host }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.hosts.http.paths.path }}
+            pathType: {{ .Values.ingress.hosts.http.paths.pathType }}
+            backend:
+              service:
+                name: {{ include "bank.fullname" . }}-svc
+                port:
+                  number: {{ .Values.ingress.hosts.http.port }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.hosts.host }}
+      secretName: {{ .Values.ingress.tls.secretName }}-tls

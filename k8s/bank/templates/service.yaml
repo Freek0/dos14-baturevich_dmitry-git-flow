@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "bank.fullname" . }}-svc
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+    - protocol: {{ .Values.service.protocol }}
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetport }}
+  selector:
+    {{- include "bank.labels" . | nindent 4 }}

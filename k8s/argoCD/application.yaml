@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  namespace: argocd
+  name: omegabank-bank
+  finalizers:
+#    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: omegabank
+  source:
+    repoURL: 'https://github.com/lowkent2me/dos14-Kot-git-flow.git'
+    path: k8s/bank
+    targetRevision: feature-CD
+    helm:
+      valueFiles:
+        - /k8s/bank/values-prd.yaml
+      releaseName: omegabank-bank
+  destination:
+    namespace: omegabank
+    name: in-cluster
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

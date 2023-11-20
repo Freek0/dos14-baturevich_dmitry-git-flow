@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bank.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "bank.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "bank.labels" . | nindent 6 }}
+  strategy:
+    type: {{ .Values.deployment.strategy.type }}
+    rollingUpdate:
+      maxSurge: {{ .Values.deployment.strategy.maxSurge }}
+  template:
+    metadata:
+      labels:
+        {{- include "bank.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+        - name: {{ .Values.deployment.template.specNginx.name }}
+          image: {{ .Values.deployment.template.specNginx.image }}
+          ports:
+            - containerPort: {{ .Values.deployment.template.specNginx.ports.containerPort }}
+              name: {{ .Values.deployment.template.specNginx.ports.name }}
+              protocol: {{ .Values.deployment.template.specNginx.ports.protocol }}
+          volumeMounts:
+            - name: {{ .Values.volumeMounts.name }}
+              mountPath: {{ .Values.volumeMounts.mountPath }}
+        - name: {{ include "bank.fullname" . }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}
+          env:
+          - name: {{ .Values.deployment.env.name_base }}
+            value: {{ .Values.deployment.env.name_base_value }}
+          - name: {{ .Values.deployment.env.username_db }}
+            valueFrom:
+              secretKeyRef:
+                key: {{ .Values.deployment.env.usernameKeyRef.username }}
+                name: {{ .Values.deployment.env.usernameKeyRef.name }}
+          - name: {{ .Values.deployment.env.password }}
+            valueFrom:
+              secretKeyRef:
+                key: {{ .Values.deployment.env.usernameKeyRef.password }}
+                name: {{ .Values.deployment.env.usernameKeyRef.name }}
+          - name: {{ .Values.deployment.env.hostname }}
+            value: {{ .Values.deployment.env.hostname_value }}
+          - name: {{ .Values.deployment.env.port_name }}
+            value: {{ .Values.deployment.env.port_value | squote }}
+      volumes:
+        - configMap:
+            name: {{ include "bank.name" . }}-{{ .Values.deployment.volume_configMap }}
+          name: {{ .Values.deployment.volume_configMap }}
