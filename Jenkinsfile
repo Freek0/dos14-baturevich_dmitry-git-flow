@@ -43,9 +43,7 @@ pipeline {
       steps {
         sh "git config --global pull.rebase true"
         sh "git pull origin"
-        sh "git branch -a > qwe"
-        sh "cat qwe"
-        sh "git branch"
+        sh "git branch --list"
         sh "git checkout feature-CD"
         script {
         def filename = 'k8s/bank/values-prd.yaml'
