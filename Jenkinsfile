@@ -40,9 +40,7 @@ pipeline {
     }
     stage('Update Helm Chart') {
       when {
-        expression {
-          build == "${env.GIT_COMMIT}" &&  "${env.BRANCH_NAME}" == "feature-k8s"
-        }
+        branch master
        }
       steps {
         sh "git checkout feature-CD"
