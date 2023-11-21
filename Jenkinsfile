@@ -40,7 +40,7 @@ pipeline {
     }
     stage('Update Helm Chart') {
       when {
-        branch feature-k8s
+        branch "feature-k8s"
        }
       steps {
         sh "git checkout feature-CD"
