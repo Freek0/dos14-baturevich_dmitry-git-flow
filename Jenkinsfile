@@ -41,9 +41,11 @@ pipeline {
         branch "master"
        }
       steps {
-          sh "git fetch --all"
-          sh "git reset --hard origin/master"
-          sh "git checkout feature-CD"
+        sh "git config --global pull.rebase true"
+        sh "git pull origin"
+        sh "git branch -a"
+        sh "git branch"
+        sh "git checkout feature-CD"
         script {
         def filename = 'k8s/bank/values-prd.yaml'
         def data = readYaml file: filename
