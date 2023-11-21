@@ -8,7 +8,7 @@ image:
   repository: freeko/bank_app
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "85427362671a14d54cd788f84887763926215aef"
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
