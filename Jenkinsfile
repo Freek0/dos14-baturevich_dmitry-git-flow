@@ -25,8 +25,6 @@ pipeline {
       when {
         anyOf {
           branch pattern: "master"
-          branch pattern: "feaute-ci"
-          branch pattern: "feature-k8s"
         }
       }
       steps {
@@ -40,14 +38,12 @@ pipeline {
     }
     stage('Update Helm Chart') {
       when {
-        branch "feature-k8s"
+        branch "master"
        }
       steps {
-        sh "git config --global pull.rebase true"
-        sh "git pull origin feature-CD"
-        sh "git branch -D feature-CD"
-        sh "git checkout -b feature-CD origin/feature-CD"
-        sh "git branch"
+          sh "git checkout argocd"
+          sh "git fetch --all"
+          sh "git reset --hard origin/master"
         script {
         def filename = 'k8s/bank/values-prd.yaml'
         def data = readYaml file: filename
@@ -60,8 +56,8 @@ pipeline {
 
           withCredentials([string(credentialsId: 'freeko_github_token', variable: 'SECRET')]) {
                 sh('git config --global user.email "dmitrii.baturevich@diginetica.com" && git config --global user.name "Jenkins"')
-                sh('git add .')
-                sh('git commit -m "JENKINS: add new image tag in helm chart for CD"')
+                sh('git add $filename')
+                sh('git commit -m "JENKINS: add new image tag for CD"')
                 sh('git remote set-url origin https://${SECRET}@github.com/Freek0/dos14-baturevich_dmitry-git-flow')
                 sh('git push origin feature-CD')
           }
