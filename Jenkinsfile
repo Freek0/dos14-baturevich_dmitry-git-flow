@@ -41,6 +41,7 @@ pipeline {
         branch "master"
        }
       steps {
+        sh "git branch"
         sh "git checkout feature-CD"
         sh "git config --global pull.rebase true"
         sh "git pull origin"
