@@ -43,7 +43,8 @@ pipeline {
       steps {
         sh "git config --global pull.rebase true"
         sh "git pull origin"
-        sh "git branch -a"
+        sh "git branch -a > qwe"
+        sh "echo qwe"
         sh "git branch"
         sh "git checkout feature-CD"
         script {
