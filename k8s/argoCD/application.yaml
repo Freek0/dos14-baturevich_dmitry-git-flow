@@ -2,25 +2,26 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   namespace: argocd
-  name: omegabank-bank
+  name: bpzb-bank
   finalizers:
 #    - resources-finalizer.argocd.argoproj.io
 spec:
-  project: omegabank
+  project: bpzb
   source:
-    repoURL: 'https://github.com/lowkent2me/dos14-Kot-git-flow.git'
+    repoURL: 'https://github.com/Freek0/dos14-baturevich_dmitry-git-flow.git'
     path: k8s/bank
-    targetRevision: feature-CD
+    targetRevision: feature-k8s
     helm:
       valueFiles:
-        - /k8s/bank/values-prd.yaml
-      releaseName: omegabank-bank
+        - values-prd.yaml
   destination:
-    namespace: omegabank
-    name: in-cluster
+    server: 'https://kubernetes.default.svc'
+    namespace: bpzb
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
