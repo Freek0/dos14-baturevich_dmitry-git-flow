@@ -58,13 +58,13 @@ pipeline {
         sh "rm $filename"
         writeYaml file: filename, data: data
 
-
-        sh('git config --global user.email "dmitrii.baturevich@diginetica.com" && git config --global user.name "Jenkins"')
-        sh('git add .')
-        sh('git commit -m "JENKINS: add new image tag in helm chart for CD"')
-        sh('git remote set-url origin https://${SECRET}@github.com/Freek0/dos14-baturevich_dmitry-git-flow')
-        sh('git push origin feature-CD')
-
+          withCredentials([string(credentialsId: 'freeko_github_token', variable: 'SECRET')]) {
+                sh('git config --global user.email "dmitrii.baturevich@diginetica.com" && git config --global user.name "Jenkins"')
+                sh('git add .')
+                sh('git commit -m "JENKINS: add new image tag in helm chart for CD"')
+                sh('git remote set-url origin https://${SECRET}@github.com/Freek0/dos14-baturevich_dmitry-git-flow')
+                sh('git push origin feature-CD')
+          }
         }
       }
     }
