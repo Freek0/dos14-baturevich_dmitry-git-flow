@@ -41,7 +41,7 @@ pipeline {
         branch "master"
        }
       steps {
-          sh "git checkout argocd"
+          sh "git checkout feature-CD"
           sh "git fetch --all"
           sh "git reset --hard origin/master"
         script {
