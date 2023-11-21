@@ -43,6 +43,7 @@ pipeline {
         branch "feature-k8s"
        }
       steps {
+        sh "git branch"
         sh "git checkout feature-CD"
         sh "git config --global pull.rebase true"
         sh "git pull origin"
