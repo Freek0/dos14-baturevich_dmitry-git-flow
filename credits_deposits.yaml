@@ -1,7 +1,7 @@
 credit:
 - client_id: 2
   percent: 15
-  periods: 33
+  periods: 34
   sum: 26000
   term: 3
 - client_id: 5
