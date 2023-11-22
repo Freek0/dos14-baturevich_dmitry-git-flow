@@ -2,7 +2,7 @@ replicaCount: 2
 image:
   repository: freeko/bank_app
   pullPolicy: IfNotPresent
-  tag: b50dfcfaedfac667970dda128874573901805f80
+  tag: 33404fafe92d07d5db0a26317da64bd359f202c3
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
