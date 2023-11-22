@@ -45,7 +45,9 @@ pipeline {
         sh "git config --global pull.rebase true"
         sh "git pull origin feature-CD"
         sh "git branch"
-        sh "git checkout feature-CD"
+        sh "git checkout -B feature-CD origin/feature-CD"
+
+        sh "git branch"
         script {
         def filename = 'k8s/bank/values-prd.yaml'
         def data = readYaml file: filename
