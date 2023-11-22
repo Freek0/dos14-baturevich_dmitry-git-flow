@@ -42,7 +42,7 @@ pipeline {
       steps {
         sh "git fetch origin feature-CD:feature-CD"
         sh "git checkout feature-CD"
-        sh "git config --global pull.rebase true"
+        sh "git config --global pull.ff true"
         sh "git pull origin feature-CD"
         script {
         def filename = 'k8s/bank/values-prd.yaml'
