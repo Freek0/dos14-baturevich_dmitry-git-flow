@@ -12,7 +12,6 @@ pipeline {
           anyOf {
             branch pattern: "feature*"
             branch pattern: "fix*"
-            branch pattern: "feaute-ci"
           }
         }
         steps {
@@ -41,9 +40,9 @@ pipeline {
         branch "master"
        }
       steps {
-          sh "git checkout argocd"
-          sh "git fetch --all"
-          sh "git reset --hard origin/master"
+        sh "git checkout feature-CD"
+        sh "git config --global pull.rebase true"
+        sh "git pull origin"
         script {
         def filename = 'k8s/bank/values-prd.yaml'
         def data = readYaml file: filename
