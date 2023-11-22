@@ -1,22 +1,46 @@
-credit:
+credits:
 - client_id: 2
   percent: 15
-  periods: -1
   sum: 25000
   term: 3
+- client_id: 5
+  percent: 14
+  sum: 10000
+  term: 1
+- client_id: 9
+  percent: 13
+  sum: 100000
+  term: 2
+- client_id: 10
+  percent: 14
+  sum: 50000
+  term: 1
+- client_id: 11
+  percent: 13
+  sum: 4000
+  term: 2
 - client_id: 14
   percent: 13
-  periods: -1
   sum: 200000
   term: 3
-deposit:
-- client_id: 7
-  percent: 11
-  periods: -1
-  sum: 500000
-  term: 3
+deposits:
+- client_id: 3
+  percent: 10
+  sum: 10000
+  term: 2
 - client_id: 8
   percent: 11
-  periods: -1
   sum: 20000
   term: 4
+- client_id: 4
+  percent: 11
+  sum: 200000
+  term: 2
+- client_id: 7
+  percent: 11
+  sum: 500000
+  term: 3
+- client_id: 13
+  percent: 10
+  sum: 1000000
+  term: 1

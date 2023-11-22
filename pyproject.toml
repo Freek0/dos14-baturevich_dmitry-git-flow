@@ -8,8 +8,10 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 pyyaml = "^6.0"
-account = { git = "https://github.com/ggramal/dos14-gramovich-git-flow.git" }
+account = { git = "https://github.com/ggramal/dos14-gramovich-git-flow.git", tag="v1.0.0"}
 flask = "^2.3.2"
+Flask-SQLAlchemy = "^3.0"
+psycopg2 = "^2.9"
 
 [tool.poetry.group.dev]
 optional = true
