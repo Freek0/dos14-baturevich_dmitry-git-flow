@@ -18,6 +18,7 @@ app.config[
 ] = f"postgresql://{config.PG_USER}:{config.PG_PASSWORD}@{config.PG_HOST}:{config.PG_PORT}/{config.PG_DATABASE}"
 db = SQLAlchemy(app)
 
+
 class BankProduct(db.Model):
     __abstract__ = True
 
@@ -26,10 +27,10 @@ class BankProduct(db.Model):
     sum = db.mapped_column(db.Double)
     term = db.mapped_column(db.Integer)
     periods = db.mapped_column(db.Integer)
-    closed = db.mapped_column(db.Boolean, default = False)
+    closed = db.mapped_column(db.Boolean, default=False)
 
     def __init__(self, **kwargs):
-        if 'closed' in kwargs:
+        if "closed" in kwargs:
             raise ValueError("closed attribute should not set")
         if kwargs["sum"] < 0:
             raise ValueError("sum must be more than 0")
@@ -39,7 +40,9 @@ class BankProduct(db.Model):
             raise ValueError("term must be more than 0")
         if "client_id" not in kwargs:
             raise ValueError("client_id must be defined")
-        kwargs["periods"] = kwargs["periods"] if 'periods' in kwargs else (kwargs['term'] * 12)
+        kwargs["periods"] = (
+            kwargs["periods"] if "periods" in kwargs else (kwargs["term"] * 12)
+        )
         for cls_field, cls_field_value in kwargs.items():
             setattr(self, cls_field, cls_field_value)
 
@@ -51,11 +54,9 @@ class BankProduct(db.Model):
     def end_sum(self):
         return self.sum * (1 + self.percent / 100) ** self.term
 
-
     @property
     def monthly_fee(self):
         return self.end_sum / self.total_periods
-
 
     def to_dict(self):
         return {
@@ -65,7 +66,6 @@ class BankProduct(db.Model):
             "term": self.term,
             "periods": self.periods,
         }
-
 
     def __eq__(self, other):
         if isinstance(other, BankProduct):
@@ -82,7 +82,6 @@ class BankProduct(db.Model):
         return hash((self.client_id, self.percent, self.sum, self.term))
 
 
-
 class Credit(BankProduct):
     __tablename__ = "credits"
     credit_id = db.mapped_column(db.Integer, primary_key=True)
@@ -94,8 +93,6 @@ class Credit(BankProduct):
         if self.periods == self.total_periods:
             client.transaction(add=self.sum)
             bank.transaction(substract=self.sum)
-
-
 
     def process(self):
         if not self.closed:
@@ -136,7 +133,9 @@ class Deposit(BankProduct):
 
 @app.route("/api/v1/credits/<int:client_id>", methods=["GET"])
 def get_credits(client_id):
-    credits = db.session.query(Credit).filter_by(client_id=client_id,closed=False).all()
+    credits = (
+        db.session.query(Credit).filter_by(client_id=client_id, closed=False).all()
+    )
     if len(credits) == 0:
         error_massage = f"client {client_id} does not have active credits"
         return jsonify({"status": "error", "message": error_massage}), 404
@@ -146,24 +145,27 @@ def get_credits(client_id):
 
 @app.route("/api/v1/deposits/<int:client_id>", methods=["GET"])
 def get_deposit(client_id):
-    deposits = db.session.query(Deposit).filter_by(client_id=client_id,closed=False).all()
+    deposits = (
+        db.session.query(Deposit).filter_by(client_id=client_id, closed=False).all()
+    )
     if len(deposits) == 0:
         error_message = f"Client {client_id} does not have active deposits"
         return jsonify({"status": "error", "message": error_message}), 404
     else:
         return jsonify(deposits[0].to_dict())
 
+
 @app.route("/api/v1/deposits", methods=["GET"])
 def get_all_deposits():
     deposits = db.session.query(Deposit).filter_by(closed=False).all()
-    deposits = [ d.to_dict() for d in deposits]
+    deposits = [d.to_dict() for d in deposits]
     return jsonify(deposits)
 
 
 @app.route("/api/v1/credits", methods=["GET"])
 def get_all_credits():
     credits = db.session.query(Credit).filter_by(closed=False).all()
-    credits = [ c.to_dict() for c in credits]
+    credits = [c.to_dict() for c in credits]
     return jsonify(credits)
 
 
@@ -174,7 +176,11 @@ def create_credit():
 
         credit = Credit(**data)
 
-        credits = db.session.query(Credit).filter_by(client_id=credit.client_id,closed=False).all()
+        credits = (
+            db.session.query(Credit)
+            .filter_by(client_id=credit.client_id, closed=False)
+            .all()
+        )
         if credits:
             return make_response(
                 jsonify(
@@ -188,13 +194,19 @@ def create_credit():
         db.session.add(credit)
         db.session.commit()
         return (
-            jsonify({"status": "ok", "message": f"Credit added for client {credit.client_id}"}),
+            jsonify(
+                {
+                    "status": "ok",
+                    "message": f"Credit added for client {credit.client_id}",
+                }
+            ),
             201,
         )
     except KeyError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
     except ValueError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
+
 
 @app.route("/api/v1/deposits", methods=["PUT"])
 def create_deposit():
@@ -203,7 +215,11 @@ def create_deposit():
 
         deposit = Deposit(**data)
 
-        deposits = db.session.query(Deposit).filter_by(client_id=deposit.client_id,closed=False).all()
+        deposits = (
+            db.session.query(Deposit)
+            .filter_by(client_id=deposit.client_id, closed=False)
+            .all()
+        )
         if deposits:
             return make_response(
                 jsonify(
@@ -217,14 +233,21 @@ def create_deposit():
         db.session.add(deposit)
         db.session.commit()
         return (
-            jsonify({"status": "ok", "message": f"Deposit added for client {deposit.client_id}"}),
+            jsonify(
+                {
+                    "status": "ok",
+                    "message": f"Deposit added for client {deposit.client_id}",
+                }
+            ),
             201,
         )
     except KeyError as e:
-        return jsonify({"status": "error", "message": f"Missing attribute {str(e)}"}), 400
+        return (
+            jsonify({"status": "error", "message": f"Missing attribute {str(e)}"}),
+            400,
+        )
     except ValueError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
-
 
 
 @app.route("/api/v1/bank/health_check", methods=["GET"])
@@ -232,9 +255,7 @@ def health_check():
     return jsonify({"status": "OK"}), 200
 
 
-
 def process_credits_and_deposits():
-
     import time
 
     while True:
@@ -247,11 +268,11 @@ def process_credits_and_deposits():
             for deposit in deposits:
                 deposit.process()
 
-
             db.session.add_all(deposits)
             db.session.add_all(credits)
             db.session.commit()
         time.sleep(10)
+
 
 def seed_data():
     credits = db.session.query(Credit).all()
@@ -273,6 +294,7 @@ def seed_data():
                 db.session.add(deposit)
                 db.session.commit()
 
+
 with app.app_context():
     db.create_all()
     seed_data()
@@ -282,4 +304,4 @@ credit_deposit_thread.start()
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host="0.0.0.0")
